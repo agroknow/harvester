@@ -1,0 +1,17 @@
+<OAI-PMH xmlns='http://www.openarchives.org/OAI/2.0/' 
+xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
+xsi:schemaLocation='http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI_PMH.xsd'> 
+<responseDate>2016-02-29</responseDate> 
+<request>http://ageconsearch.umn.edu/dspace-oai/request?verb=ListRecords&amp;metadataPrefix=oai_dc</request> 
+<ListRecords>
+<record>
+<header>
+<identifier>junk:identifier20</identifier>
+<datestamp>2016-02-29</datestamp>
+</header>
+<about>
+</about>
+</record>
+0001-01-01T00:00:00Z/9999-12-31T23:59:59Z//oai_dc/52500
+</ListRecords>
+</OAI-PMH>
