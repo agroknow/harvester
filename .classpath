@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="C:/Users/Mihalis/Desktop/harvester-master/harvester-master/lib/servletapi-2.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Mihalis/Desktop/harvester-master/harvester-master/lib/SimpleValidation.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Mihalis/Desktop/harvester-master/harvester-master/lib/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mihalis/Desktop/harvester-master/harvester-master/lib/apache-httpcomponents-httpclient.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mihalis/Desktop/harvester-master/harvester-master/lib/apache-httpcomponents-httpcore.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

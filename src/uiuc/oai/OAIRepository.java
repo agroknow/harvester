@@ -24,6 +24,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,8 +36,18 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Vector;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
+
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -41,6 +56,9 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.xml.sax.InputSource;
+
+import com.agroknow.harvester.utils.MySSLSocketFactory;
+
 import sun.misc.BASE64Encoder;
 import uiuc.oai.OAIError;
 import uiuc.oai.OAIException;
@@ -663,6 +681,25 @@ public class OAIRepository {
         this.priCheckBaseURL();
         try {
             URL url = new URL(baseURL + "?verb=Identify");
+                       
+            
+
+        	SSLContext ctx = null;
+            TrustManager[] trustAllCerts = new X509TrustManager[]{new X509TrustManager(){
+                public X509Certificate[] getAcceptedIssuers(){return null;}
+                public void checkClientTrusted(X509Certificate[] certs, String authType){}
+                public void checkServerTrusted(X509Certificate[] certs, String authType){}
+            }};
+            try {
+                ctx = SSLContext.getInstance("SSL");
+                ctx.init(null, trustAllCerts, null);
+            } catch (Exception e) {
+                System.out.println("Error loading ssl context {}"+ e.getMessage());
+            }
+
+            SSLContext.setDefault(ctx);
+        	
+            
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
             http = this.frndTrySend(http);
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -1136,7 +1173,75 @@ public class OAIRepository {
         this.strFrom = f;
     }
 
+    /**
+     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
+     * aid testing on a local box, not for use on production.
+     */
+    private static void disableSSLCertificateChecking() {
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                // Not implemented
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                // Not implemented
+            }
+        } };
+
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+    
     protected HttpURLConnection frndTrySend(HttpURLConnection h) throws OAIException {
+    	/*
+    	try
+    	{
+	    	KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+	        trustStore.load(null, null);
+	
+	        MySSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+	        sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+	
+	        SchemeRegistry registry = new SchemeRegistry();
+	        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+	        registry.register(new Scheme("https", sf, 443));
+    	}
+    	catch(java.lang.Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+    	*/
+    	
+    	SSLContext ctx = null;
+        TrustManager[] trustAllCerts = new X509TrustManager[]{new X509TrustManager(){
+            public X509Certificate[] getAcceptedIssuers(){return null;}
+            public void checkClientTrusted(X509Certificate[] certs, String authType){}
+            public void checkServerTrusted(X509Certificate[] certs, String authType){}
+        }};
+        try {
+            ctx = SSLContext.getInstance("SSL");
+            ctx.init(null, trustAllCerts, null);
+        } catch (Exception e) {
+            System.out.println("Error loading ssl context {}"+ e.getMessage());
+        }
+
+        SSLContext.setDefault(ctx);
+    	
         HttpURLConnection http = h;
         boolean done = false;
         GregorianCalendar sendTime = new GregorianCalendar();
@@ -1145,7 +1250,10 @@ public class OAIRepository {
         int retryCount = 0;
         do {
             try {
-                http.setRequestProperty("User-Agent", this.strUserAgent);
+
+            	
+                http.setRequestProperty("User-Agent", this.strUserAgent);           
+                
                 http.setRequestProperty("From", this.strFrom);
                 if (this.strUser != null && this.strUser.length() > 0) {
                     byte[] encodedPassword = (this.strUser + ":" + this.strPassword).getBytes();

@@ -42,6 +42,10 @@ public class HarvestSet{
             * 
             * "https://cgspace.cgiar.org/oai/request" C:\Users\Mihalis\Desktop\QT1\  "oai_dc" com_10568_1
             * 
+            * "http://www.tropicalgrasslands.info/index.php/tgft/oai" C:\Users\Mihalis\Desktop\QT0\  "oai_dc" tgft
+            * 
+            * "http://repository.cimmyt.org/oai/request" C:\Users\Mihalis\Desktop\CIMMYT_GeneticR\  "oai_dc" col_10883_3
+            * 
             * */
         }
 
